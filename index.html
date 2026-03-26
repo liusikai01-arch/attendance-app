@@ -191,12 +191,6 @@
       background: var(--primary-hover);
     }
 
-    .submit-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
     .message {
       margin-top: 16px;
       min-height: 22px;
@@ -394,7 +388,7 @@
       serverTimestamp,
       query,
       orderBy,
-      onSnapshot,
+      onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -404,7 +398,7 @@
       storageBucket: "attendance-app-2026-b9cbb.firebasestorage.app",
       messagingSenderId: "1004519207751",
       appId: "1:1004519207751:web:b3c7316d4e3d997c639262",
-      measurementId: "G-N1E9T668E4",
+      measurementId: "G-N1E9T668E4"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -415,14 +409,16 @@
     const messageEl = document.getElementById("message");
     const recordListEl = document.getElementById("recordList");
     const recordCountEl = document.getElementById("recordCount");
-    const statusButtons = document.querySelectorAll(".status-btn");
+    const statusButtons = Array.from(document.querySelectorAll(".status-btn"));
 
     let selectedStatus = "출석";
 
     function setActiveStatus(status) {
       selectedStatus = status;
       statusButtons.forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.status === status);
+        const active = btn.dataset.status === status;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-pressed", active ? "true" : "false");
       });
     }
 
@@ -438,14 +434,14 @@
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
-        second: "2-digit",
+        second: "2-digit"
       };
 
-      if (record?.createdAt?.toDate) {
+      if (record && record.createdAt && typeof record.createdAt.toDate === "function") {
         return new Intl.DateTimeFormat("ko-KR", dateOptions).format(record.createdAt.toDate());
       }
 
-      if (record?.localCreatedAt) {
+      if (record && record.localCreatedAt) {
         return new Intl.DateTimeFormat("ko-KR", dateOptions).format(new Date(record.localCreatedAt));
       }
 
@@ -481,18 +477,12 @@
             <p class="record-name">${escapeHtml(record.name)}</p>
             <p class="record-time">등록 시간: ${formatDate(record)}</p>
           </div>
-          <div class="status-pill ${getStatusClass(record.status)}">${record.status}</div>
+          <div class="status-pill ${getStatusClass(record.status)}">${escapeHtml(record.status)}</div>
         </article>
       `).join("");
     }
 
-    statusButtons.forEach((btn) => {
-      btn.addEventListener("click", () => setActiveStatus(btn.dataset.status));
-    });
-
-    setActiveStatus("출석");
-
-    async function saveAttendance() {
+    function saveAttendance() {
       const name = studentNameInput.value.trim();
 
       if (!name) {
@@ -505,28 +495,32 @@
         name,
         status: selectedStatus,
         createdAt: serverTimestamp(),
-        localCreatedAt: new Date().toISOString(),
+        localCreatedAt: new Date().toISOString()
       };
 
-      saveBtn.disabled = true;
       showMessage("저장이 요청되었습니다.", "success");
 
       studentNameInput.value = "";
       setActiveStatus("출석");
       studentNameInput.focus();
 
-      try {
-        await addDoc(collection(db, "attendance"), payload);
-        showMessage("출석 정보가 성공적으로 저장되었습니다.", "success");
-      } catch (error) {
-        console.error(error);
-        showMessage("저장 중 오류가 발생했습니다. Firebase 설정 또는 Firestore 규칙을 확인해주세요.", "error");
-      } finally {
-        saveBtn.disabled = false;
-      }
+      addDoc(collection(db, "attendance"), payload)
+        .then(() => {
+          showMessage("출석 정보가 성공적으로 저장되었습니다.", "success");
+        })
+        .catch((error) => {
+          console.error(error);
+          showMessage("저장 중 오류가 발생했습니다. Firebase 설정 또는 Firestore 규칙을 확인해주세요.", "error");
+        });
     }
 
-    saveBtn.addEventListener("click", saveAttendance);
+    statusButtons.forEach((btn) => {
+      btn.onclick = function () {
+        setActiveStatus(this.dataset.status);
+      };
+    });
+
+    saveBtn.onclick = saveAttendance;
 
     studentNameInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
@@ -534,6 +528,8 @@
         saveAttendance();
       }
     });
+
+    setActiveStatus("출석");
 
     const attendanceQuery = query(
       collection(db, "attendance"),
@@ -545,7 +541,7 @@
       (snapshot) => {
         const records = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(),
+          ...doc.data()
         }));
         renderRecords(records);
       },
