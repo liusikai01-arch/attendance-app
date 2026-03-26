@@ -354,13 +354,13 @@
         <div class="field">
           <label>출석 상태</label>
           <div class="status-buttons">
-            <button class="status-btn present" data-status="출석">출석</button>
-            <button class="status-btn absent" data-status="결석">결석</button>
-            <button class="status-btn late" data-status="지각">지각</button>
+            <button type="button" class="status-btn present" data-status="출석">출석</button>
+            <button type="button" class="status-btn absent" data-status="결석">결석</button>
+            <button type="button" class="status-btn late" data-status="지각">지각</button>
           </div>
         </div>
 
-        <button id="saveBtn" class="submit-btn">출석 정보 저장</button>
+        <button type="button" id="saveBtn" class="submit-btn">출석 정보 저장</button>
         <div id="message" class="message"></div>
 
         <div class="footer-note">
@@ -471,23 +471,19 @@
       recordCountEl.textContent = records.length;
 
       if (!records.length) {
-        recordListEl.innerHTML = `<div class="empty-state">아직 등록된 출석 기록이 없습니다.</div>`;
+        recordListEl.innerHTML = '<div class="empty-state">아직 등록된 출석 기록이 없습니다.</div>';
         return;
       }
 
-      recordListEl.innerHTML = records
-        .map(
-          (record) => `
-            <article class="record-item">
-              <div class="record-main">
-                <p class="record-name">${escapeHtml(record.name)}</p>
-                <p class="record-time">등록 시간: ${formatDate(record)}</p>
-              </div>
-              <div class="status-pill ${getStatusClass(record.status)}">${record.status}</div>
-            </article>
-          `
-        )
-        .join("");
+      recordListEl.innerHTML = records.map((record) => `
+        <article class="record-item">
+          <div class="record-main">
+            <p class="record-name">${escapeHtml(record.name)}</p>
+            <p class="record-time">등록 시간: ${formatDate(record)}</p>
+          </div>
+          <div class="status-pill ${getStatusClass(record.status)}">${record.status}</div>
+        </article>
+      `).join("");
     }
 
     statusButtons.forEach((btn) => {
@@ -496,7 +492,7 @@
 
     setActiveStatus("출석");
 
-    saveBtn.addEventListener("click", () => {
+    async function saveAttendance() {
       const name = studentNameInput.value.trim();
 
       if (!name) {
@@ -505,9 +501,6 @@
         return;
       }
 
-      saveBtn.disabled = true;
-      showMessage("저장이 요청되었습니다.", "success");
-
       const payload = {
         name,
         status: selectedStatus,
@@ -515,19 +508,31 @@
         localCreatedAt: new Date().toISOString(),
       };
 
-      addDoc(collection(db, "attendance"), payload)
-        .then(() => {
-          showMessage("출석 정보가 성공적으로 저장되었습니다.", "success");
-        })
-        .catch((error) => {
-          console.error(error);
-          showMessage("저장 중 오류가 발생했습니다. Firebase 설정 또는 Firestore 규칙을 확인해주세요.", "error");
-        });
+      saveBtn.disabled = true;
+      showMessage("저장이 요청되었습니다.", "success");
 
       studentNameInput.value = "";
       setActiveStatus("출석");
-      saveBtn.disabled = false;
       studentNameInput.focus();
+
+      try {
+        await addDoc(collection(db, "attendance"), payload);
+        showMessage("출석 정보가 성공적으로 저장되었습니다.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage("저장 중 오류가 발생했습니다. Firebase 설정 또는 Firestore 규칙을 확인해주세요.", "error");
+      } finally {
+        saveBtn.disabled = false;
+      }
+    }
+
+    saveBtn.addEventListener("click", saveAttendance);
+
+    studentNameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        saveAttendance();
+      }
     });
 
     const attendanceQuery = query(
