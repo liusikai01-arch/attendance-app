@@ -3,378 +3,221 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>학생 출석 체크</title>
+  <title>학생 성적 입력 시스템</title>
   <style>
     :root {
-      --bg: #f5f7fb;
+      --bg: #f3f6fb;
       --card: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
       --border: #e5e7eb;
       --primary: #2563eb;
       --primary-hover: #1d4ed8;
-      --success: #16a34a;
       --danger: #dc2626;
+      --success: #16a34a;
       --warning: #d97706;
-      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --excellent: #7c3aed;
+      --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
       --radius: 18px;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Inter", "Noto Sans KR", Arial, sans-serif;
-      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
       color: var(--text);
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
       min-height: 100vh;
     }
-
-    .container {
-      width: min(1100px, calc(100% - 32px));
-      margin: 40px auto;
-    }
-
-    .header {
-      margin-bottom: 24px;
-    }
-
+    .container { width: min(1280px, calc(100% - 28px)); margin: 28px auto 40px; }
+    .header { margin-bottom: 22px; }
     .eyebrow {
-      display: inline-block;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--primary);
-      background: rgba(37, 99, 235, 0.08);
-      padding: 8px 12px;
-      border-radius: 999px;
-      margin-bottom: 14px;
+      display: inline-block; padding: 8px 12px; border-radius: 999px;
+      background: rgba(37, 99, 235, 0.08); color: var(--primary);
+      font-size: 12px; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 14px;
     }
-
-    .header h1 {
-      margin: 0 0 8px;
-      font-size: clamp(28px, 4vw, 42px);
-      line-height: 1.1;
-    }
-
-    .header p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 16px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 24px;
-      align-items: start;
-    }
-
+    .header h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 42px); line-height: 1.1; }
+    .header p { margin: 0; color: var(--muted); font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 390px 1fr; gap: 24px; align-items: start; }
     .card {
-      background: var(--card);
-      border: 1px solid rgba(229, 231, 235, 0.8);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 24px;
+      background: var(--card); border: 1px solid rgba(229, 231, 235, 0.9);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px;
     }
-
-    .card h2 {
-      margin: 0 0 8px;
-      font-size: 22px;
+    .card h2 { margin: 0 0 8px; font-size: 21px; }
+    .subtext { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+    .field { margin-bottom: 16px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 700; }
+    input, select, textarea {
+      width: 100%; border: 1px solid var(--border); border-radius: 12px;
+      padding: 13px 14px; font-size: 14px; outline: none; background: #fff; transition: 0.2s ease;
     }
-
-    .subtext {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 20px;
+    textarea { resize: vertical; min-height: 86px; }
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(37, 99, 235, 0.5); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
     }
-
-    .field {
-      margin-bottom: 18px;
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+    .btn {
+      border: none; border-radius: 12px; padding: 14px 12px; font-size: 14px; font-weight: 800;
+      cursor: pointer; transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
     }
-
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 8px;
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: #eef2ff; color: var(--primary); border: 1px solid rgba(37, 99, 235, 0.15); }
+    .message { min-height: 22px; margin-top: 14px; font-size: 14px; font-weight: 700; }
+    .message.success { color: var(--success); }
+    .message.error { color: var(--danger); }
+    .note {
+      margin-top: 16px; border-radius: 12px; border: 1px solid var(--border);
+      background: #f8fafc; padding: 14px 15px; color: var(--muted); font-size: 13px; line-height: 1.6;
     }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 14px 15px;
-      font-size: 15px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      outline: none;
-      transition: 0.2s ease;
-      background: #fff;
+    .topbar { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; margin-bottom: 16px; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .stat { padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
+    .stat-label {
+      color: var(--muted); font-size: 12px; font-weight: 700; margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.04em;
     }
-
-    input[type="text"]:focus {
-      border-color: rgba(37, 99, 235, 0.5);
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    .stat-value { font-size: 24px; font-weight: 800; line-height: 1; }
+    .filters { display: grid; grid-template-columns: 1.3fr 1fr 1fr auto; gap: 10px; margin-bottom: 16px; }
+    .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 16px; background: #fff; }
+    table { width: 100%; border-collapse: collapse; min-width: 980px; }
+    thead th {
+      background: #f8fafc; color: #374151; text-align: left; padding: 14px;
+      font-size: 13px; font-weight: 800; border-bottom: 1px solid var(--border); white-space: nowrap;
     }
-
-    .status-buttons {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 8px;
+    tbody td { padding: 14px; border-bottom: 1px solid #eef2f7; font-size: 14px; vertical-align: middle; }
+    tbody tr:hover { background: #fafcff; }
+    .pill {
+      display: inline-flex; align-items: center; justify-content: center; border-radius: 999px;
+      padding: 6px 10px; font-size: 12px; font-weight: 800; white-space: nowrap;
     }
-
-    .status-btn,
-    .submit-btn {
-      border: none;
-      border-radius: 12px;
-      padding: 14px 12px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-    }
-
-    .status-btn:hover,
-    .submit-btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .status-btn.active {
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
-    }
-
-    .present {
-      background: rgba(22, 163, 74, 0.1);
-      color: var(--success);
-      border: 1px solid rgba(22, 163, 74, 0.18);
-    }
-
-    .present.active {
-      background: var(--success);
-      color: white;
-    }
-
-    .absent {
-      background: rgba(220, 38, 38, 0.1);
-      color: var(--danger);
-      border: 1px solid rgba(220, 38, 38, 0.18);
-    }
-
-    .absent.active {
-      background: var(--danger);
-      color: white;
-    }
-
-    .late {
-      background: rgba(217, 119, 6, 0.1);
-      color: var(--warning);
-      border: 1px solid rgba(217, 119, 6, 0.18);
-    }
-
-    .late.active {
-      background: var(--warning);
-      color: white;
-    }
-
-    .submit-btn {
-      width: 100%;
-      margin-top: 18px;
-      background: var(--primary);
-      color: white;
-      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
-    }
-
-    .submit-btn:hover {
-      background: var(--primary-hover);
-    }
-
-    .message {
-      margin-top: 16px;
-      min-height: 22px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .message.success {
-      color: var(--success);
-    }
-
-    .message.error {
-      color: var(--danger);
-    }
-
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--primary);
-      background: rgba(37, 99, 235, 0.08);
-      padding: 8px 12px;
-      border-radius: 999px;
-    }
-
-    .record-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .record-item {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      background: #fff;
-    }
-
-    .record-main {
-      min-width: 0;
-    }
-
-    .record-name {
-      font-size: 16px;
-      font-weight: 700;
-      margin: 0 0 6px;
-      word-break: break-word;
-    }
-
-    .record-time {
-      margin: 0;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .status-pill {
-      white-space: nowrap;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .pill-present {
-      background: rgba(22, 163, 74, 0.1);
-      color: var(--success);
-    }
-
-    .pill-absent {
-      background: rgba(220, 38, 38, 0.1);
-      color: var(--danger);
-    }
-
-    .pill-late {
-      background: rgba(217, 119, 6, 0.1);
-      color: var(--warning);
-    }
-
+    .pill-excellent { background: rgba(124, 58, 237, 0.12); color: var(--excellent); }
+    .pill-pass { background: rgba(22, 163, 74, 0.12); color: var(--success); }
+    .pill-fail { background: rgba(220, 38, 38, 0.12); color: var(--danger); }
+    .score-excellent { color: var(--excellent); font-weight: 800; }
+    .score-fail { color: var(--danger); font-weight: 800; }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mini-btn { border: none; border-radius: 10px; padding: 8px 10px; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .mini-edit { background: #eef2ff; color: var(--primary); }
+    .mini-delete { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
     .empty-state {
-      text-align: center;
-      padding: 36px 18px;
-      color: var(--muted);
-      border: 1px dashed var(--border);
-      border-radius: 14px;
-      background: #fafafa;
+      text-align: center; color: var(--muted); padding: 40px 18px;
+      border: 1px dashed var(--border); border-radius: 14px; background: #fafafa;
     }
-
-    .footer-note {
-      margin-top: 18px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
+    code { background: #eef2ff; color: #3730a3; padding: 2px 6px; border-radius: 6px; }
+    @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
     @media (max-width: 900px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .container {
-        width: min(100% - 20px, 1100px);
-        margin: 20px auto 32px;
-      }
-
-      .card {
-        padding: 20px;
-      }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .filters { grid-template-columns: 1fr 1fr; }
     }
-
-    @media (max-width: 520px) {
-      .status-buttons {
-        grid-template-columns: 1fr;
-      }
-
-      .record-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+    @media (max-width: 640px) {
+      .container { width: min(100% - 16px, 1280px); margin-top: 18px; }
+      .card { padding: 18px; }
+      .grid-2, .actions, .filters, .topbar { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header class="header">
-      <div class="eyebrow">ATTENDANCE SYSTEM</div>
-      <h1>학생 출석 체크 웹앱</h1>
-      <p>학생 출석 상태를 빠르게 기록하고, Firestore 기반으로 실시간 출석 현황을 확인하세요.</p>
+      <div class="eyebrow">Grade Management</div>
+      <h1>학생 성적 입력 웹앱</h1>
+      <p>Firebase Firestore 기반으로 성적을 저장하고, 실시간 조회·검색·편집·삭제까지 한 화면에서 관리하세요.</p>
     </header>
 
-    <main class="grid">
+    <main class="layout">
       <section class="card">
-        <h2>출석 등록</h2>
-        <div class="subtext">학생 이름을 입력하고 출석 상태를 선택한 뒤 저장하세요.</div>
+        <h2 id="formTitle">성적 등록</h2>
+        <p class="subtext">학생 정보를 입력하고 성적을 저장하세요.</p>
 
         <div class="field">
           <label for="studentName">학생 이름</label>
           <input id="studentName" type="text" placeholder="예: 김민준" maxlength="50" />
         </div>
 
-        <div class="field">
-          <label>출석 상태</label>
-          <div class="status-buttons">
-            <button type="button" class="status-btn present" data-status="출석">출석</button>
-            <button type="button" class="status-btn absent" data-status="결석">결석</button>
-            <button type="button" class="status-btn late" data-status="지각">지각</button>
+        <div class="grid-2">
+          <div class="field">
+            <label for="studentId">학번</label>
+            <input id="studentId" type="text" placeholder="예: 2026001" maxlength="30" />
+          </div>
+          <div class="field">
+            <label for="className">반/학급</label>
+            <input id="className" type="text" placeholder="예: 2학년 3반" maxlength="30" />
           </div>
         </div>
 
-        <button type="button" id="saveBtn" class="submit-btn">출석 정보 저장</button>
+        <div class="grid-2">
+          <div class="field">
+            <label for="subject">과목</label>
+            <input id="subject" type="text" placeholder="예: 수학" maxlength="30" />
+          </div>
+          <div class="field">
+            <label for="examType">시험 유형</label>
+            <select id="examType">
+              <option value="퀴즈">퀴즈</option>
+              <option value="과제">과제</option>
+              <option value="중간고사">중간고사</option>
+              <option value="기말고사">기말고사</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="score">점수</label>
+            <input id="score" type="number" placeholder="예: 87" min="0" step="0.1" />
+          </div>
+          <div class="field">
+            <label for="maxScore">만점</label>
+            <input id="maxScore" type="number" placeholder="예: 100" min="1" step="0.1" value="100" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="note">备注</label>
+          <textarea id="note" placeholder="추가 메모를 입력하세요."></textarea>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="saveBtn" class="btn btn-primary">성적 저장</button>
+          <button type="button" id="resetBtn" class="btn btn-secondary">입력 초기화</button>
+        </div>
+
         <div id="message" class="message"></div>
 
-        <div class="footer-note">
-          Firebase 설정이 이미 적용되어 있습니다.<br />
-          Firestore Database와 보안 규칙만 확인하면 바로 테스트할 수 있습니다.
+        <div class="note">
+          Firebase 설정이 이미 포함되어 있습니다.<br />
+          GitHub Pages에 올릴 때 파일명을 <code>index.html</code> 로 두면 바로 배포할 수 있습니다.
         </div>
       </section>
 
       <section class="card">
-        <div class="toolbar">
+        <div class="topbar">
           <div>
-            <h2 style="margin:0 0 6px;">실시간 출석 기록</h2>
-            <div class="subtext" style="margin:0;">Firestore 변경 사항이 자동으로 반영됩니다.</div>
+            <h2 style="margin:0 0 6px;">실시간 성적 기록</h2>
+            <p class="subtext" style="margin:0;">검색, 필터, 통계를 포함한 성적 관리 화면입니다.</p>
           </div>
-          <div class="badge"><span id="recordCount">0</span> Records</div>
+          <button type="button" id="exportBtn" class="btn btn-secondary">CSV 내보내기</button>
         </div>
 
-        <div id="recordList" class="record-list">
-          <div class="empty-state">아직 등록된 출석 기록이 없습니다.</div>
+        <div class="stats">
+          <div class="stat"><div class="stat-label">총 학생 수</div><div class="stat-value" id="totalCount">0</div></div>
+          <div class="stat"><div class="stat-label">평균 점수</div><div class="stat-value" id="avgScore">0</div></div>
+          <div class="stat"><div class="stat-label">최고 점수</div><div class="stat-value" id="highestScore">0</div></div>
+          <div class="stat"><div class="stat-label">낙제 인원</div><div class="stat-value" id="failCount">0</div></div>
         </div>
+
+        <div class="filters">
+          <input id="searchInput" type="text" placeholder="이름 / 학번 / 과목 검색" />
+          <input id="filterClass" type="text" placeholder="반/학급 필터" />
+          <input id="filterSubject" type="text" placeholder="과목 필터" />
+          <button type="button" id="clearFilterBtn" class="btn btn-secondary">필터 초기화</button>
+        </div>
+
+        <div id="tableContainer" class="table-wrap"></div>
       </section>
     </main>
   </div>
@@ -382,13 +225,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      addDoc,
-      serverTimestamp,
-      query,
-      orderBy,
-      onSnapshot
+      getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -404,153 +241,309 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const studentNameInput = document.getElementById("studentName");
-    const saveBtn = document.getElementById("saveBtn");
-    const messageEl = document.getElementById("message");
-    const recordListEl = document.getElementById("recordList");
-    const recordCountEl = document.getElementById("recordCount");
-    const statusButtons = Array.from(document.querySelectorAll(".status-btn"));
+    const refs = {
+      formTitle: document.getElementById("formTitle"),
+      studentName: document.getElementById("studentName"),
+      studentId: document.getElementById("studentId"),
+      className: document.getElementById("className"),
+      subject: document.getElementById("subject"),
+      examType: document.getElementById("examType"),
+      score: document.getElementById("score"),
+      maxScore: document.getElementById("maxScore"),
+      note: document.getElementById("note"),
+      saveBtn: document.getElementById("saveBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      message: document.getElementById("message"),
+      searchInput: document.getElementById("searchInput"),
+      filterClass: document.getElementById("filterClass"),
+      filterSubject: document.getElementById("filterSubject"),
+      clearFilterBtn: document.getElementById("clearFilterBtn"),
+      exportBtn: document.getElementById("exportBtn"),
+      tableContainer: document.getElementById("tableContainer"),
+      totalCount: document.getElementById("totalCount"),
+      avgScore: document.getElementById("avgScore"),
+      highestScore: document.getElementById("highestScore"),
+      failCount: document.getElementById("failCount")
+    };
 
-    let selectedStatus = "출석";
-
-    function setActiveStatus(status) {
-      selectedStatus = status;
-      statusButtons.forEach((btn) => {
-        const active = btn.dataset.status === status;
-        btn.classList.toggle("active", active);
-        btn.setAttribute("aria-pressed", active ? "true" : "false");
-      });
-    }
+    const PASS_SCORE = 60;
+    const EXCELLENT_SCORE = 90;
+    let editingId = null;
+    let allRecords = [];
 
     function showMessage(text, type = "success") {
-      messageEl.textContent = text;
-      messageEl.className = `message ${type}`;
+      refs.message.textContent = text;
+      refs.message.className = `message ${type}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
     function formatDate(record) {
-      const dateOptions = {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
+      const options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" };
+      if (record?.updatedAt?.toDate) return new Intl.DateTimeFormat("ko-KR", options).format(record.updatedAt.toDate());
+      if (record?.createdAt?.toDate) return new Intl.DateTimeFormat("ko-KR", options).format(record.createdAt.toDate());
+      if (record?.localCreatedAt) return new Intl.DateTimeFormat("ko-KR", options).format(new Date(record.localCreatedAt));
+      return "-";
+    }
+
+    function getGrade(scorePercent) {
+      if (scorePercent >= 90) return "A";
+      if (scorePercent >= 80) return "B";
+      if (scorePercent >= 70) return "C";
+      if (scorePercent >= 60) return "D";
+      return "F";
+    }
+
+    function getStatusPill(scorePercent) {
+      if (scorePercent >= EXCELLENT_SCORE) return '<span class="pill pill-excellent">우수</span>';
+      if (scorePercent >= PASS_SCORE) return '<span class="pill pill-pass">합격</span>';
+      return '<span class="pill pill-fail">낙제</span>';
+    }
+
+    function resetForm() {
+      editingId = null;
+      refs.formTitle.textContent = "성적 등록";
+      refs.saveBtn.textContent = "성적 저장";
+      refs.studentName.value = "";
+      refs.studentId.value = "";
+      refs.className.value = "";
+      refs.subject.value = "";
+      refs.examType.value = "퀴즈";
+      refs.score.value = "";
+      refs.maxScore.value = "100";
+      refs.note.value = "";
+      refs.studentName.focus();
+    }
+
+    function validateForm() {
+      const name = refs.studentName.value.trim();
+      const studentId = refs.studentId.value.trim();
+      const className = refs.className.value.trim();
+      const subject = refs.subject.value.trim();
+      const examType = refs.examType.value.trim();
+      const score = Number(refs.score.value);
+      const maxScore = Number(refs.maxScore.value);
+      const note = refs.note.value.trim();
+
+      if (!name || !studentId || !className || !subject || !examType) throw new Error("필수 항목을 모두 입력해주세요.");
+      if (!Number.isFinite(score) || !Number.isFinite(maxScore)) throw new Error("점수와 만점은 숫자로 입력해주세요.");
+      if (maxScore <= 0) throw new Error("만점은 0보다 커야 합니다.");
+      if (score < 0 || score > maxScore) throw new Error("점수는 0 이상, 만점 이하로 입력해주세요.");
+
+      const scorePercent = Number(((score / maxScore) * 100).toFixed(1));
+
+      return {
+        name, studentId, className, subject, examType, score, maxScore,
+        scorePercent, grade: getGrade(scorePercent), note, localCreatedAt: new Date().toISOString()
       };
+    }
 
-      if (record && record.createdAt && typeof record.createdAt.toDate === "function") {
-        return new Intl.DateTimeFormat("ko-KR", dateOptions).format(record.createdAt.toDate());
+    async function saveRecord() {
+      try {
+        const payload = validateForm();
+        showMessage(editingId ? "수정 요청 중입니다..." : "저장 요청 중입니다...", "success");
+
+        if (editingId) {
+          await updateDoc(doc(db, "grades", editingId), { ...payload, updatedAt: serverTimestamp() });
+          showMessage("성적이 성공적으로 수정되었습니다.", "success");
+        } else {
+          await addDoc(collection(db, "grades"), { ...payload, createdAt: serverTimestamp() });
+          showMessage("성적이 성공적으로 저장되었습니다.", "success");
+        }
+
+        resetForm();
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "저장 중 오류가 발생했습니다.", "error");
       }
+    }
 
-      if (record && record.localCreatedAt) {
-        return new Intl.DateTimeFormat("ko-KR", dateOptions).format(new Date(record.localCreatedAt));
+    function fillFormForEdit(record) {
+      editingId = record.id;
+      refs.formTitle.textContent = "성적 수정";
+      refs.saveBtn.textContent = "수정 저장";
+      refs.studentName.value = record.name || "";
+      refs.studentId.value = record.studentId || "";
+      refs.className.value = record.className || "";
+      refs.subject.value = record.subject || "";
+      refs.examType.value = record.examType || "퀴즈";
+      refs.score.value = record.score ?? "";
+      refs.maxScore.value = record.maxScore ?? 100;
+      refs.note.value = record.note || "";
+      refs.studentName.focus();
+      showMessage("수정할 데이터를 불러왔습니다.", "success");
+    }
+
+    async function removeRecord(id) {
+      if (!confirm("이 성적 기록을 삭제하시겠습니까?")) return;
+      try {
+        await deleteDoc(doc(db, "grades", id));
+        if (editingId === id) resetForm();
+        showMessage("성적 기록이 삭제되었습니다.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage("삭제 중 오류가 발생했습니다.", "error");
       }
-
-      return "시간 없음";
     }
 
-    function getStatusClass(status) {
-      if (status === "출석") return "pill-present";
-      if (status === "결석") return "pill-absent";
-      return "pill-late";
+    function getFilteredRecords() {
+      const keyword = refs.searchInput.value.trim().toLowerCase();
+      const classKeyword = refs.filterClass.value.trim().toLowerCase();
+      const subjectKeyword = refs.filterSubject.value.trim().toLowerCase();
+
+      return allRecords.filter((record) => {
+        const matchesKeyword = !keyword || [record.name, record.studentId, record.subject]
+          .some((field) => String(field || "").toLowerCase().includes(keyword));
+        const matchesClass = !classKeyword || String(record.className || "").toLowerCase().includes(classKeyword);
+        const matchesSubject = !subjectKeyword || String(record.subject || "").toLowerCase().includes(subjectKeyword);
+        return matchesKeyword && matchesClass && matchesSubject;
+      });
     }
 
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    function updateStats(records) {
+      refs.totalCount.textContent = String(records.length);
+      if (!records.length) {
+        refs.avgScore.textContent = "0";
+        refs.highestScore.textContent = "0";
+        refs.failCount.textContent = "0";
+        return;
+      }
+      const average = (records.reduce((sum, r) => sum + Number(r.scorePercent || 0), 0) / records.length).toFixed(1);
+      const highest = Math.max(...records.map((r) => Number(r.scorePercent || 0))).toFixed(1);
+      const failCount = records.filter((r) => Number(r.scorePercent || 0) < PASS_SCORE).length;
+      refs.avgScore.textContent = average;
+      refs.highestScore.textContent = highest;
+      refs.failCount.textContent = String(failCount);
     }
 
-    function renderRecords(records) {
-      recordCountEl.textContent = records.length;
+    function renderTable() {
+      const records = getFilteredRecords();
+      updateStats(records);
 
       if (!records.length) {
-        recordListEl.innerHTML = '<div class="empty-state">아직 등록된 출석 기록이 없습니다.</div>';
+        refs.tableContainer.innerHTML = '<div class="empty-state">조건에 맞는 성적 기록이 없습니다.</div>';
         return;
       }
 
-      recordListEl.innerHTML = records.map((record) => `
-        <article class="record-item">
-          <div class="record-main">
-            <p class="record-name">${escapeHtml(record.name)}</p>
-            <p class="record-time">등록 시간: ${formatDate(record)}</p>
-          </div>
-          <div class="status-pill ${getStatusClass(record.status)}">${escapeHtml(record.status)}</div>
-        </article>
-      `).join("");
+      refs.tableContainer.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>학생 이름</th><th>학번</th><th>반/학급</th><th>과목</th><th>시험 유형</th>
+              <th>점수</th><th>백분율</th><th>등급</th><th>상태</th><th>입력 시간</th><th>备注</th><th>작업</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${records.map((record) => {
+              const percent = Number(record.scorePercent || 0);
+              const scoreClass = percent >= EXCELLENT_SCORE ? "score-excellent" : (percent < PASS_SCORE ? "score-fail" : "");
+              return `
+                <tr>
+                  <td>${escapeHtml(record.name)}</td>
+                  <td>${escapeHtml(record.studentId)}</td>
+                  <td>${escapeHtml(record.className)}</td>
+                  <td>${escapeHtml(record.subject)}</td>
+                  <td>${escapeHtml(record.examType)}</td>
+                  <td>${escapeHtml(record.score)} / ${escapeHtml(record.maxScore)}</td>
+                  <td class="${scoreClass}">${percent.toFixed(1)}%</td>
+                  <td>${escapeHtml(record.grade)}</td>
+                  <td>${getStatusPill(percent)}</td>
+                  <td>${formatDate(record)}</td>
+                  <td>${escapeHtml(record.note || "-")}</td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" class="mini-btn mini-edit" data-action="edit" data-id="${record.id}">수정</button>
+                      <button type="button" class="mini-btn mini-delete" data-action="delete" data-id="${record.id}">삭제</button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+
+      refs.tableContainer.querySelectorAll("[data-action='edit']").forEach((btn) => {
+        btn.onclick = () => {
+          const record = allRecords.find((item) => item.id === btn.dataset.id);
+          if (record) fillFormForEdit(record);
+        };
+      });
+
+      refs.tableContainer.querySelectorAll("[data-action='delete']").forEach((btn) => {
+        btn.onclick = () => removeRecord(btn.dataset.id);
+      });
     }
 
-    function saveAttendance() {
-      const name = studentNameInput.value.trim();
-
-      if (!name) {
-        showMessage("학생 이름을 입력해주세요.", "error");
-        studentNameInput.focus();
+    function exportCsv() {
+      const records = getFilteredRecords();
+      if (!records.length) {
+        showMessage("내보낼 데이터가 없습니다.", "error");
         return;
       }
 
-      const payload = {
-        name,
-        status: selectedStatus,
-        createdAt: serverTimestamp(),
-        localCreatedAt: new Date().toISOString()
-      };
+      const header = ["학생 이름","학번","반/학급","과목","시험 유형","점수","만점","백분율","등급","备注","입력 시간"];
+      const rows = records.map((record) => [
+        record.name, record.studentId, record.className, record.subject, record.examType,
+        record.score, record.maxScore, record.scorePercent, record.grade, record.note || "", formatDate(record)
+      ]);
 
-      showMessage("저장이 요청되었습니다.", "success");
+      const csvContent = [header, ...rows]
+        .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","))
+        .join("\n");
 
-      studentNameInput.value = "";
-      setActiveStatus("출석");
-      studentNameInput.focus();
-
-      addDoc(collection(db, "attendance"), payload)
-        .then(() => {
-          showMessage("출석 정보가 성공적으로 저장되었습니다.", "success");
-        })
-        .catch((error) => {
-          console.error(error);
-          showMessage("저장 중 오류가 발생했습니다. Firebase 설정 또는 Firestore 규칙을 확인해주세요.", "error");
-        });
+      const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "student_grades.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showMessage("CSV 파일을 내보냈습니다.", "success");
     }
 
-    statusButtons.forEach((btn) => {
-      btn.onclick = function () {
-        setActiveStatus(this.dataset.status);
-      };
+    refs.saveBtn.onclick = saveRecord;
+    refs.resetBtn.onclick = () => { resetForm(); showMessage("입력값을 초기화했습니다.", "success"); };
+    refs.clearFilterBtn.onclick = () => {
+      refs.searchInput.value = "";
+      refs.filterClass.value = "";
+      refs.filterSubject.value = "";
+      renderTable();
+    };
+    refs.exportBtn.onclick = exportCsv;
+
+    [refs.searchInput, refs.filterClass, refs.filterSubject].forEach((el) => el.addEventListener("input", renderTable));
+
+    [refs.studentName, refs.studentId, refs.className, refs.subject, refs.score, refs.maxScore].forEach((el) => {
+      el.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          saveRecord();
+        }
+      });
     });
 
-    saveBtn.onclick = saveAttendance;
+    resetForm();
 
-    studentNameInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        saveAttendance();
-      }
-    });
-
-    setActiveStatus("출석");
-
-    const attendanceQuery = query(
-      collection(db, "attendance"),
-      orderBy("createdAt", "desc")
-    );
-
+    const gradesQuery = query(collection(db, "grades"), orderBy("createdAt", "desc"));
     onSnapshot(
-      attendanceQuery,
+      gradesQuery,
       (snapshot) => {
-        const records = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        renderRecords(records);
+        allRecords = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        renderTable();
       },
       (error) => {
         console.error(error);
-        recordListEl.innerHTML = `
+        refs.tableContainer.innerHTML = `
           <div class="empty-state">
-            실시간 데이터를 불러오지 못했습니다.<br />
-            Firestore 보안 규칙 및 설정을 확인해주세요.
+            데이터를 불러오지 못했습니다.<br />
+            Firestore 설정 또는 보안 규칙을 확인해주세요.
           </div>
         `;
       }
